@@ -2,66 +2,41 @@ pipeline {
     agent any
 
     environment {
-        VENV_DIR = 'venv'
+        IMAGE_NAME = 'flask-app'
+        CONTAINER_NAME = 'flask-container'
     }
 
     stages {
         stage('Checkout') {
             steps {
-                // Checkout code from GitHub repository
                 checkout scm
             }
         }
 
-        stage('Set Up Python Environment') {
+        stage('Build Docker Image') {
             steps {
                 script {
-                    echo "Setting up Python virtual environment"
-
-                    // Create a Python virtual environment
-                    sh 'python3 -m venv ${VENV_DIR}'
-
-                    // Ensure that pip is upgraded inside the virtual environment
-                    sh './${VENV_DIR}/bin/python -m ensurepip --upgrade'
-
-                    // Display Python version and pip version inside virtual environment
-                    sh './${VENV_DIR}/bin/python --version'
-                    sh './${VENV_DIR}/bin/python -m pip --version'
+                    sh "docker build -t ${IMAGE_NAME} ."
                 }
             }
         }
 
-        stage('Install Dependencies') {
+        stage('Run Docker Container') {
             steps {
                 script {
-                    // Install the required dependencies from requirements.txt
-                    echo "Installing dependencies"
-                    sh './${VENV_DIR}/bin/python -m pip install -r requirements.txt'
+                    // Stop & remove previous container if it exists
+                    sh "docker rm -f ${CONTAINER_NAME} || true"
+
+                    // Run container in background
+                    sh "docker run -d -p 5000:5000 --name ${CONTAINER_NAME} ${IMAGE_NAME}"
                 }
             }
         }
-
-        stage('Run App') {
-    steps {
-        script {
-            echo "Running the application"
-            // Run Flask app in background, redirect output to flask.log
-            sh 'nohup ./${VENV_DIR}/bin/python app.py > flask.log 2>&1 &'
-        }
-    }
-}
-
     }
 
     post {
         always {
-            echo 'Build completed!'
-        }
-        success {
-            echo 'Build succeeded!'
-        }
-        failure {
-            echo 'Build failed!'
+            echo 'Build complete!'
         }
     }
 }

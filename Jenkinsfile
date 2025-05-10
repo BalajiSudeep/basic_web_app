@@ -2,11 +2,11 @@ pipeline {
     agent any
 
     environment {
-        VENV_DIR = "venv"
+        VIRTUAL_ENV = './venv'  // Define path for the virtual environment
     }
 
     stages {
-        stage('Checkout') {
+        stage('Declarative: Checkout SCM') {
             steps {
                 checkout scm
             }
@@ -15,12 +15,21 @@ pipeline {
         stage('Set Up Python Environment') {
             steps {
                 script {
-                    // Create virtual environment and install dependencies
-                    sh '''
-                        python3 -m venv $VENV_DIR
-                        $VENV_DIR/bin/pip install --upgrade pip
-                        $VENV_DIR/bin/pip install -r requirements.txt
-                    '''
+                    // Create virtual environment
+                    sh 'python3 -m venv venv'
+
+                    // Ensure pip is installed and upgrade it
+                    sh 'venv/bin/python -m ensurepip --upgrade'
+                    sh 'venv/bin/pip install --upgrade pip'  // Upgrade pip
+                }
+            }
+        }
+
+        stage('Install Dependencies') {
+            steps {
+                script {
+                    // Install dependencies from requirements.txt
+                    sh 'venv/bin/pip install -r requirements.txt'
                 }
             }
         }
@@ -28,22 +37,22 @@ pipeline {
         stage('Run App') {
             steps {
                 script {
-                    // Run the Flask app in the background
-                    sh '''
-                        nohup $VENV_DIR/bin/python app.py > app.log 2>&1 &
-                    '''
-                    echo "Flask app started in background. Check app.log for output."
+                    // Run your Flask app (or any app you want to run)
+                    sh 'venv/bin/python app.py'  // Assuming `app.py` is the entry point
                 }
             }
         }
     }
 
     post {
+        always {
+            echo 'Build completed!'
+        }
         success {
-            echo "Build and deployment successful!"
+            echo 'Build succeeded!'
         }
         failure {
-            echo "Build failed!"
+            echo 'Build failed!'
         }
     }
 }

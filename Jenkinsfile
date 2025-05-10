@@ -2,13 +2,12 @@ pipeline {
     agent any
 
     environment {
-        VENV_PATH = './venv'
+        VENV_DIR = 'venv'
     }
 
     stages {
-        stage('Checkout SCM') {
+        stage('Checkout') {
             steps {
-                // Checkout the latest code from the repository
                 checkout scm
             }
         }
@@ -16,48 +15,35 @@ pipeline {
         stage('Set Up Python Environment') {
             steps {
                 script {
-                    // Set up Python virtual environment
-                    sh 'python3 -m venv venv'
+                    echo "Current working directory: ${pwd()}"
+                    sh 'python3 -m venv ${VENV_DIR}'
+                    sh 'ls -l ${VENV_DIR}/bin'
+                    sh './${VENV_DIR}/bin/python -m ensurepip --upgrade'
+                    sh './${VENV_DIR}/bin/python --version'
+                    sh './${VENV_DIR}/bin/python -m pip --version'
                     
-                    // Ensure pip is available and upgrade/downgrade pip to avoid issues with the current version
-                    sh './venv/bin/python -m ensurepip --upgrade'
-                    sh './venv/bin/python -m pip install --upgrade pip==23.1.2' // Downgrading pip to a more stable version
-                    
-                    // Debugging: List contents of the virtual environment's bin directory
-                    sh 'ls -al ./venv/bin/'
+                    // Fixing pip to a stable version
+                    sh './${VENV_DIR}/bin/python -m pip install pip==23.1.2'
                 }
             }
         }
 
         stage('Install Dependencies') {
             steps {
-                script {
-                    // Install dependencies using python -m pip to avoid issues with pip not being executable
-                    sh './venv/bin/python -m pip install -r requirements.txt'
-                }
+                sh './${VENV_DIR}/bin/python -m pip install -r requirements.txt'
             }
         }
 
         stage('Run App') {
             steps {
-                script {
-                    // Check if the app file exists before running it
-                    sh 'ls -al'
-
-                    // Run the application (replace with your app's run command if necessary)
-                    sh './venv/bin/python app.py'
-                }
+                sh './${VENV_DIR}/bin/python app.py'
             }
         }
     }
 
     post {
         always {
-            // Clean up or notify based on the result
             echo 'Build completed!'
-        }
-        success {
-            echo 'Build succeeded!'
         }
         failure {
             echo 'Build failed!'

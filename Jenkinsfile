@@ -18,10 +18,13 @@ pipeline {
                 script {
                     // Create virtual environment
                     sh 'python3 -m venv venv'
-
-                    // Ensure pip is installed and upgrade it
+                    
+                    // Debug: Check if the virtual environment and pip exist
+                    sh 'ls -l venv/bin'  // List contents of venv/bin to check if pip is there
+                    sh 'which pip'  // Check if pip is on the PATH
                     sh 'python3 -m venv venv'  // Recreate venv just to ensure it is clean
-                    sh 'venv/bin/python -m ensurepip --upgrade'
+                    sh 'venv/bin/python -m ensurepip --upgrade'  // Ensure pip is installed
+                    sh 'ls -l venv/bin'  // Verify pip installation
                     sh 'venv/bin/pip install --upgrade pip'  // Upgrade pip
                 }
             }

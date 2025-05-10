@@ -8,60 +8,49 @@ pipeline {
 
     stages {
         stage('Declarative: Checkout SCM') {
-            steps { // <-- This 'steps' block was missing
+            steps {
                 checkout scm
             }
         }
 
         stage('Set Up Python Environment') {
-            steps { // <-- This 'steps' block was missing
+            steps {
                 script {
                     echo "Current working directory: ${pwd()}"
-
                     sh 'python3 -m venv venv'
-
-                    echo "Contents of venv directory:"
-                    sh 'ls -l venv'
 
                     echo "Contents of venv/bin directory:"
                     sh 'ls -l venv/bin'
 
-                    echo "Checking for pip explicitly:"
-                    sh 'ls -l venv/bin/pip'
-
-                    // Try using the full path
-                    echo "Checking with full path:"
-                    sh "ls -l ${WORKSPACE}/venv/bin/pip"
-
-                    // Activate the virtual environment
+                    echo "Activating virtual environment"
                     sh '. venv/bin/activate'
 
-                    // Verify pip after activation
-                    echo "Which pip after activation:"
+                    echo "Which pip after (attempted) activation:"
                     sh 'which pip'
-                    sh 'pip --version'
+                    sh './venv/bin/pip --version' // Explicitly call virtual env pip
                     sh 'python3 --version'
                     sh 'which python3'
 
-                    sh 'venv/bin/python -m ensurepip --upgrade'
-                    sh 'pip --version'
-                    sh 'pip install --upgrade pip'
+                    echo "Ensuring pip is installed/upgraded within venv"
+                    sh './venv/bin/python -m ensurepip --upgrade'
+                    sh './venv/bin/pip --version' // Verify virtual env pip version
+                    sh './venv/bin/pip install --upgrade pip --break-system-packages' // Explicit upgrade with override
                 }
             }
         }
 
         stage('Install Dependencies') {
-            steps { // <-- This 'steps' block was missing
+            steps {
                 script {
-                    sh 'pip install -r requirements.txt'
+                    sh './venv/bin/pip install -r requirements.txt'
                 }
             }
         }
 
         stage('Run App') {
-            steps { // <-- This 'steps' block was missing
+            steps {
                 script {
-                    sh 'python app.py'
+                    sh './venv/bin/python app.py'
                 }
             }
         }

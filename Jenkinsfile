@@ -8,6 +8,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
+                // Checkout code from GitHub repository
                 checkout scm
             }
         }
@@ -15,28 +16,41 @@ pipeline {
         stage('Set Up Python Environment') {
             steps {
                 script {
-                    echo "Current working directory: ${pwd()}"
+                    echo "Setting up Python virtual environment"
+
+                    // Create a Python virtual environment
                     sh 'python3 -m venv ${VENV_DIR}'
-                    sh 'ls -l ${VENV_DIR}/bin'
+
+                    // Ensure that pip is upgraded inside the virtual environment
                     sh './${VENV_DIR}/bin/python -m ensurepip --upgrade'
+                    
+                    // Display Python version and pip version inside virtual environment
                     sh './${VENV_DIR}/bin/python --version'
                     sh './${VENV_DIR}/bin/python -m pip --version'
-                    
-                    // Use a compatible pip version (e.g., 25.1.1 for Python 3.12)
-                    sh './${VENV_DIR}/bin/python -m pip install pip==25.1.1'
+
+                    // Install the required dependencies from requirements.txt
+                    sh './${VENV_DIR}/bin/python -m pip install -r requirements.txt'
                 }
             }
         }
 
         stage('Install Dependencies') {
             steps {
-                sh './${VENV_DIR}/bin/python -m pip install -r requirements.txt'
+                script {
+                    // Ensure dependencies are installed correctly
+                    echo "Installing dependencies"
+                    sh './${VENV_DIR}/bin/python -m pip install -r requirements.txt'
+                }
             }
         }
 
         stage('Run App') {
             steps {
-                sh './${VENV_DIR}/bin/python app.py'
+                script {
+                    // Running the application after setting up the environment
+                    echo "Running the application"
+                    sh './${VENV_DIR}/bin/python app.py'
+                }
             }
         }
     }
@@ -44,6 +58,9 @@ pipeline {
     post {
         always {
             echo 'Build completed!'
+        }
+        success {
+            echo 'Build succeeded!'
         }
         failure {
             echo 'Build failed!'

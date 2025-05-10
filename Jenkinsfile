@@ -44,9 +44,9 @@ pipeline {
         stage('Run App') {
             steps {
                 script {
-                    // Running the application after setting up the environment
                     echo "Running the application"
-                    sh './${VENV_DIR}/bin/python app.py'
+                    // Run Flask app in the background and on all interfaces
+                    sh './${VENV_DIR}/bin/python app.py &'
                 }
             }
         }

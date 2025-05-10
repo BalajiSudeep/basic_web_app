@@ -46,7 +46,7 @@ pipeline {
                 script {
                     echo "Running the application"
                     // Run Flask app in the background and on all interfaces
-                    sh './${VENV_DIR}/bin/python app.py &'
+                     sh 'nohup ./${VENV_DIR}/bin/python app.py &'
                 }
             }
         }

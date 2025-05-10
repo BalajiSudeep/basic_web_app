@@ -17,19 +17,18 @@ pipeline {
                 script {
                     echo "Current working directory: ${pwd()}"
                     sh 'python3 -m venv ${VENV_DIR}'
-                    sh 'ls -l ${VENV_DIR}'
                     sh 'ls -l ${VENV_DIR}/bin'
                     sh './${VENV_DIR}/bin/python -m ensurepip --upgrade'
                     sh './${VENV_DIR}/bin/python --version'
-                    sh './${VENV_DIR}/bin/pip --version'
-                    sh './${VENV_DIR}/bin/pip install --upgrade pip'
+                    sh './${VENV_DIR}/bin/python -m pip --version'
+                    sh './${VENV_DIR}/bin/python -m pip install --upgrade pip'
                 }
             }
         }
 
         stage('Install Dependencies') {
             steps {
-                sh './${VENV_DIR}/bin/pip install -r requirements.txt'
+                sh './${VENV_DIR}/bin/python -m pip install -r requirements.txt'
             }
         }
 

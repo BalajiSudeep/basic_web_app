@@ -2,13 +2,13 @@ pipeline {
     agent any
 
     environment {
-        VENV_PATH = './venv'
+        VENV_DIR = 'venv'
     }
 
     stages {
-        stage('Checkout SCM') {
+        stage('Checkout') {
             steps {
-                // Checkout the latest code from the repository
+                // Checkout code from GitHub repository
                 checkout scm
             }
         }
@@ -16,14 +16,17 @@ pipeline {
         stage('Set Up Python Environment') {
             steps {
                 script {
-                    // Set up Python virtual environment
-                    sh 'python3 -m venv venv'
-                    
-                    // Ensure pip is available (without upgrading)
-                    sh './venv/bin/python -m ensurepip --upgrade'
-                    
-                    // Debugging: List contents of the virtual environment's bin directory
-                    sh 'ls -al ./venv/bin/'
+                    echo "Setting up Python virtual environment"
+
+                    // Create a Python virtual environment
+                    sh 'python3 -m venv ${VENV_DIR}'
+
+                    // Ensure that pip is upgraded inside the virtual environment
+                    sh './${VENV_DIR}/bin/python -m ensurepip --upgrade'
+
+                    // Display Python version and pip version inside virtual environment
+                    sh './${VENV_DIR}/bin/python --version'
+                    sh './${VENV_DIR}/bin/python -m pip --version'
                 }
             }
         }
@@ -31,28 +34,27 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 script {
-                    // Install dependencies using python -m pip to avoid issues with pip not being executable
-                    sh './venv/bin/python -m pip install -r requirements.txt'
+                    // Install the required dependencies from requirements.txt
+                    echo "Installing dependencies"
+                    sh './${VENV_DIR}/bin/python -m pip install -r requirements.txt'
                 }
             }
         }
 
         stage('Run App') {
-            steps {
-                script {
-                    // Check if the app file exists before running it
-                    sh 'ls -al'
-
-                    // Run the application (replace with your app's run command if necessary)
-                    sh './venv/bin/python app.py'
-                }
-            }
+    steps {
+        script {
+            echo "Running the application"
+            // Run Flask app in background, redirect output to flask.log
+            sh 'nohup ./${VENV_DIR}/bin/python app.py > flask.log 2>&1 &'
         }
+    }
+}
+
     }
 
     post {
         always {
-            // Clean up or notify based on the result
             echo 'Build completed!'
         }
         success {
@@ -63,4 +65,3 @@ pipeline {
         }
     }
 }
-

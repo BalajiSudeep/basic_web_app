@@ -1,11 +1,15 @@
-from flask import Flask
+from flask import Flask, render_template, request
 
 app = Flask(__name__)
 
 @app.route('/')
 def home():
-    return "Hello from Flask App running via Jenkins CI/CD Pipeline!"
+    return render_template('index.html')  # Show the form
+
+@app.route('/submit', methods=['POST'])
+def submit():
+    name = request.form['name']  # Extract form data
+    return render_template('result.html', name=name)  # Show result
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
-
+    app.run(debug=True, host='0.0.0.0')

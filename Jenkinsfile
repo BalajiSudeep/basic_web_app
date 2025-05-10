@@ -25,9 +25,6 @@ pipeline {
                     
                     // Debugging: List contents of the virtual environment's bin directory
                     sh 'ls -al ./venv/bin/'
-
-                    // Explicitly upgrade pip inside the virtual environment
-                    sh './venv/bin/python -m pip install --upgrade pip'
                 }
             }
         }
@@ -38,7 +35,7 @@ pipeline {
                     // Debugging: Ensure pip is working
                     sh './venv/bin/pip --version'
 
-                    // Install dependencies from requirements.txt
+                    // Install dependencies from requirements.txt without upgrading pip
                     sh './venv/bin/pip install -r requirements.txt'
                 }
             }

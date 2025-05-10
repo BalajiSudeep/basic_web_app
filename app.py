@@ -4,7 +4,7 @@ app = Flask(__name__)
 
 @app.route('/')
 def home():
-    return render_template('output.html')  # Show the form
+    return render_template('index.html')  # Show the form
 
 @app.route('/submit', methods=['POST'])
 def submit():

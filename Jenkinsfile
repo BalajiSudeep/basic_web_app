@@ -2,16 +2,14 @@ pipeline {
     agent any
 
     environment {
-        PYTHON_ENV = "venv"
+        VENV_DIR = 'venv'
     }
 
     stages {
         stage('Checkout') {
             steps {
-                script {
-                    // Checkout the code from GitHub
-                    checkout scm
-                }
+                // Checkout code from GitHub repository
+                checkout scm
             }
         }
 
@@ -19,12 +17,16 @@ pipeline {
             steps {
                 script {
                     echo "Setting up Python virtual environment"
-                    // Create a virtual environment
-                    sh 'python3 -m venv ${PYTHON_ENV}'
-                    
-                    // Ensure pip is upgraded and works correctly
-                    sh './${PYTHON_ENV}/bin/python -m ensurepip --upgrade'
-                    sh './${PYTHON_ENV}/bin/python -m pip install --upgrade pip'
+
+                    // Create a Python virtual environment
+                    sh 'python3 -m venv ${VENV_DIR}'
+
+                    // Ensure that pip is upgraded inside the virtual environment
+                    sh './${VENV_DIR}/bin/python -m ensurepip --upgrade'
+
+                    // Display Python version and pip version inside virtual environment
+                    sh './${VENV_DIR}/bin/python --version'
+                    sh './${VENV_DIR}/bin/python -m pip --version'
                 }
             }
         }
@@ -32,9 +34,9 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 script {
-                    echo "Installing dependencies from requirements.txt"
-                    // Install dependencies
-                    sh './${PYTHON_ENV}/bin/python -m pip install -r requirements.txt'
+                    // Install the required dependencies from requirements.txt
+                    echo "Installing dependencies"
+                    sh './${VENV_DIR}/bin/python -m pip install -r requirements.txt'
                 }
             }
         }
@@ -42,9 +44,9 @@ pipeline {
         stage('Run App') {
             steps {
                 script {
-                    echo "Running the Flask app"
-                    // Run the application (adjust the command based on your app)
-                    sh './${PYTHON_ENV}/bin/python app.py'
+                    // Running the application after setting up the environment
+                    echo "Running the application"
+                    sh './${VENV_DIR}/bin/python app.py'
                 }
             }
         }
@@ -52,15 +54,13 @@ pipeline {
 
     post {
         always {
-            echo "Cleaning up..."
-            // Clean up virtual environment after the build
-            sh 'rm -rf ${PYTHON_ENV}'
+            echo 'Build completed!'
         }
         success {
-            echo "Build completed successfully!"
+            echo 'Build succeeded!'
         }
         failure {
-            echo "Build failed!"
+            echo 'Build failed!'
         }
     }
 }

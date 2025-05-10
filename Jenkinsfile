@@ -3,6 +3,7 @@ pipeline {
 
     environment {
         VIRTUAL_ENV = './venv'  // Define path for the virtual environment
+        PATH = "$VIRTUAL_ENV/bin:$PATH"  // Add the virtual environment's bin directory to the PATH
     }
 
     stages {
@@ -19,6 +20,7 @@ pipeline {
                     sh 'python3 -m venv venv'
 
                     // Ensure pip is installed and upgrade it
+                    sh 'python3 -m venv venv'  // Recreate venv just to ensure it is clean
                     sh 'venv/bin/python -m ensurepip --upgrade'
                     sh 'venv/bin/pip install --upgrade pip'  // Upgrade pip
                 }

@@ -22,9 +22,15 @@ pipeline {
                     // Debug: Check if the virtual environment and pip exist
                     sh 'ls -l venv/bin'  // List contents of venv/bin to check if pip is there
                     sh 'which pip'  // Check if pip is on the PATH
-                    sh 'python3 -m venv venv'  // Recreate venv just to ensure it is clean
+                    sh 'python3 --version'  // Check Python version
+                    sh 'which python3'  // Check which Python is being used
+                    
+                    // Ensure pip is available and upgrade it
                     sh 'venv/bin/python -m ensurepip --upgrade'  // Ensure pip is installed
                     sh 'ls -l venv/bin'  // Verify pip installation
+
+                    // Use the full path to pip to upgrade pip
+                    sh 'venv/bin/pip --version'  // Check if pip is working
                     sh 'venv/bin/pip install --upgrade pip'  // Upgrade pip
                 }
             }

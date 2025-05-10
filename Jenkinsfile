@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        VENV_DIR = 'venv'
+        VENV_DIR = "venv"
     }
 
     stages {
@@ -15,26 +15,29 @@ pipeline {
         stage('Set Up Python Environment') {
             steps {
                 script {
-                    echo "Current working directory: ${pwd()}"
-                    sh 'python3 -m venv ${VENV_DIR}'
-                    sh 'ls -l ${VENV_DIR}/bin'
-                    sh './${VENV_DIR}/bin/python -m ensurepip --upgrade'
-                    sh './${VENV_DIR}/bin/python --version'
-                    sh './${VENV_DIR}/bin/python -m pip --version'
-                    sh './${VENV_DIR}/bin/python -m pip install --upgrade pip'
+                    sh 'python3 -m venv venv'
+                    sh './venv/bin/python -m ensurepip --upgrade'
+                    // Use a stable pip version that works with Python 3.12
+                    sh './venv/bin/python -m pip install pip==23.3.1'
+                    sh './venv/bin/python --version'
+                    sh './venv/bin/pip --version'
                 }
             }
         }
 
         stage('Install Dependencies') {
             steps {
-                sh './${VENV_DIR}/bin/python -m pip install -r requirements.txt'
+                script {
+                    sh './venv/bin/pip install -r requirements.txt'
+                }
             }
         }
 
         stage('Run App') {
             steps {
-                sh './${VENV_DIR}/bin/python app.py'
+                script {
+                    sh './venv/bin/python app.py &'
+                }
             }
         }
     }

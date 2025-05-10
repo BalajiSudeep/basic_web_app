@@ -22,8 +22,8 @@ pipeline {
                     sh './${VENV_DIR}/bin/python --version'
                     sh './${VENV_DIR}/bin/python -m pip --version'
                     
-                    // Fixing pip to a stable version
-                    sh './${VENV_DIR}/bin/python -m pip install pip==23.1.2'
+                    // Use a compatible pip version (e.g., 25.1.1 for Python 3.12)
+                    sh './${VENV_DIR}/bin/python -m pip install pip==25.1.1'
                 }
             }
         }

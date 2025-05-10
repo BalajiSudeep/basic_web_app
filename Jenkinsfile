@@ -42,14 +42,15 @@ pipeline {
         }
 
         stage('Run App') {
-            steps {
-                script {
-                    echo "Running the application"
-                    // Run Flask app in the background and on all interfaces
-                     sh 'nohup ./${VENV_DIR}/bin/python app.py &'
-                }
-            }
+    steps {
+        script {
+            echo "Running the application"
+            // Run Flask app in background, redirect output to flask.log
+            sh 'nohup ./${VENV_DIR}/bin/python app.py > flask.log 2>&1 &'
         }
+    }
+}
+
     }
 
     post {

@@ -19,8 +19,9 @@ pipeline {
                     // Set up Python virtual environment
                     sh 'python3 -m venv venv'
                     
-                    // Ensure pip is available (without upgrading)
+                    // Ensure pip is available and upgrade/downgrade pip to avoid issues with the current version
                     sh './venv/bin/python -m ensurepip --upgrade'
+                    sh './venv/bin/python -m pip install --upgrade pip==23.1.2' // Downgrading pip to a more stable version
                     
                     // Debugging: List contents of the virtual environment's bin directory
                     sh 'ls -al ./venv/bin/'
@@ -63,4 +64,3 @@ pipeline {
         }
     }
 }
-

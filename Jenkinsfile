@@ -1,33 +1,81 @@
-stage('Set Up Python Environment') {
-    steps {
-        script {
-            echo "Current working directory: ${pwd()}" // Print the current directory
+pipeline {
+    agent any
 
-            // Create virtual environment
-            sh 'python3 -m venv venv'
+    environment {
+        VIRTUAL_ENV = './venv'
+        PATH = "$VIRTUAL_ENV/bin:$PATH"
+    }
 
-            echo "Contents of venv directory:"
-            sh 'ls -l venv'
+    stages {
+        stage('Declarative: Checkout SCM') {
+            steps { // <-- This 'steps' block was missing
+                checkout scm
+            }
+        }
 
-            echo "Contents of venv/bin directory:"
-            sh 'ls -l venv/bin'
+        stage('Set Up Python Environment') {
+            steps { // <-- This 'steps' block was missing
+                script {
+                    echo "Current working directory: ${pwd()}"
 
-            // Check for pip specifically
-            sh 'ls -l venv/bin/pip'
+                    sh 'python3 -m venv venv'
 
-            // Activate the virtual environment
-            sh '. venv/bin/activate'
+                    echo "Contents of venv directory:"
+                    sh 'ls -l venv'
 
-            // Verify pip after activation
-            echo "Which pip after activation:"
-            sh 'which pip'
-            sh 'pip --version'
-            sh 'python3 --version'
-            sh 'which python3'
+                    echo "Contents of venv/bin directory:"
+                    sh 'ls -l venv/bin'
 
-            sh 'venv/bin/python -m ensurepip --upgrade'
-            sh 'pip --version'
-            sh 'pip install --upgrade pip'
+                    echo "Checking for pip explicitly:"
+                    sh 'ls -l venv/bin/pip'
+
+                    // Try using the full path
+                    echo "Checking with full path:"
+                    sh "ls -l ${WORKSPACE}/venv/bin/pip"
+
+                    // Activate the virtual environment
+                    sh '. venv/bin/activate'
+
+                    // Verify pip after activation
+                    echo "Which pip after activation:"
+                    sh 'which pip'
+                    sh 'pip --version'
+                    sh 'python3 --version'
+                    sh 'which python3'
+
+                    sh 'venv/bin/python -m ensurepip --upgrade'
+                    sh 'pip --version'
+                    sh 'pip install --upgrade pip'
+                }
+            }
+        }
+
+        stage('Install Dependencies') {
+            steps { // <-- This 'steps' block was missing
+                script {
+                    sh 'pip install -r requirements.txt'
+                }
+            }
+        }
+
+        stage('Run App') {
+            steps { // <-- This 'steps' block was missing
+                script {
+                    sh 'python app.py'
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            echo 'Build completed!'
+        }
+        success {
+            echo 'Build succeeded!'
+        }
+        failure {
+            echo 'Build failed!'
         }
     }
 }

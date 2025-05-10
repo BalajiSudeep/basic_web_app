@@ -2,7 +2,6 @@ pipeline {
     agent any
 
     environment {
-        // Define any environment variables here
         VENV_PATH = './venv'
     }
 
@@ -32,11 +31,8 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 script {
-                    // Debugging: Ensure pip is working
-                    sh './venv/bin/pip --version'
-
-                    // Install dependencies from requirements.txt without upgrading pip
-                    sh './venv/bin/pip install -r requirements.txt'
+                    // Install dependencies using python -m pip to avoid issues with pip not being executable
+                    sh './venv/bin/python -m pip install -r requirements.txt'
                 }
             }
         }
@@ -44,10 +40,10 @@ pipeline {
         stage('Run App') {
             steps {
                 script {
-                    // Debugging: Check if the app file exists
+                    // Check if the app file exists before running it
                     sh 'ls -al'
 
-                    // Run the application (you may need to adjust this for your app)
+                    // Run the application (replace with your app's run command if necessary)
                     sh './venv/bin/python app.py'
                 }
             }
